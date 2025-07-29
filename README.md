@@ -43,7 +43,7 @@ If parsing fails, this method will throw an error, but will still ensure all dat
 The returned promise resolves to an object, containing:
 
 * `serverName` - The server name requested in the client hello (or undefined if SNI was not used)
-* `alpnProtocols` - A array of ALPN protcol names requested in the client hello (or undefined if ALPN was not used)
+* `alpnProtocols` - An array of ALPN protocol names requested in the client hello (or undefined if ALPN was not used)
 * `fingerprintData` - An array containing the raw components used for JA3 TLS fingerprinting:
     1. The TLS version number as a Uint16 (771 for TLS 1.2+)
     2. An array of cipher ids (excluding GREASE)
