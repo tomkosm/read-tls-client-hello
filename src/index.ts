@@ -286,11 +286,18 @@ export async function readTlsClientHello(inputStream: stream.Readable): Promise<
     };
 }
 
-export function calculateJa3FromFingerprintData(fingerprintData: TlsFingerprintData) {
+export function calculateJa3FromFingerprintData(
+    fingerprintData: TlsFingerprintData,
+    normalizeExtensions: boolean = false
+) {
+    const extensions = normalizeExtensions
+        ? [...fingerprintData[2]].sort((a, b) => a - b)
+        : fingerprintData[2];
+
     const fingerprintString = [
         fingerprintData[0],
         fingerprintData[1].join('-'),
-        fingerprintData[2].join('-'),
+        extensions.join('-'),
         fingerprintData[3].join('-'),
         fingerprintData[4].join('-')
     ].join(',');
@@ -406,6 +413,7 @@ export async function getTlsFingerprintAsJa4(rawStream: stream.Readable) {
 interface SocketWithHello extends net.Socket {
     tlsClientHello?: TlsHelloData & {
         ja3: string;
+        ja3n: string;
         ja4: string;
     }
 }
@@ -421,6 +429,7 @@ declare module 'tls' {
          */
         tlsClientHello?: TlsHelloData & {
             ja3: string;
+            ja3n: string;
             ja4: string;
         }
     }
@@ -453,6 +462,7 @@ export function trackClientHellos(tlsServer: tls.Server) {
             socket.tlsClientHello = {
                 ...helloData,
                 ja3: calculateJa3FromFingerprintData(helloData.fingerprintData),
+                ja3n: calculateJa3FromFingerprintData(helloData.fingerprintData, true),
                 ja4: calculateJa4FromHelloData(helloData)
             };
         } catch (e) {
